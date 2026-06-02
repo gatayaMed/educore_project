@@ -39,6 +39,11 @@ services:
         condition: service_healthy
     ports:
       - "8100:8100"
+    # Traefik labels for backend routing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.educore-backend.rule=Host(`educore.smarta.website`) && (PathPrefix(`/api/`) || PathPrefix(`/admin/`) || PathPrefix(`/api-token-auth/`) || PathPrefix(`/swagger/`) || PathPrefix(`/redoc/`))"
+      - "traefik.http.services.educore-backend.loadbalancer.server.port=8100"  
 
   frontend:
     build:
@@ -50,6 +55,11 @@ services:
     #   - "8080:80"
     expose:
       - "80"
+    # Traefik labels for frontend routing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.educore-frontend.rule=Host(`educore.smarta.website`)"
+      - "traefik.http.services.educore-frontend.loadbalancer.server.port=80"  
 
 volumes:
   postgres_data:
