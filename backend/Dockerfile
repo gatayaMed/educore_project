@@ -1,6 +1,11 @@
 # backend/Dockerfile
 FROM python:3.11-slim-bookworm
 
+# Set Python environment variables (critical for production)
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=core.settings
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -11,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
+# Copy and install requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -21,11 +26,10 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p /app/media /app/staticfiles /app/logs
 
-# Collect static files
+# Collect static files (no DB connection needed)
 RUN python manage.py collectstatic --noinput
 
-# Expose port 8100 (matches your compose file)
 EXPOSE 8100
 
-# Run gunicorn (no nginx needed for Coolify)
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8100", "--workers", "3", "--timeout", "120"]
+# Run migrations and start gunicorn (like working example)
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8100 --workers 3 --timeout 120 --log-level info"]
