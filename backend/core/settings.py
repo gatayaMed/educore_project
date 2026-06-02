@@ -10,8 +10,16 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if host]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,backend,educore.smarta.website,api.educore.smarta.website').split(',')
+
+# Also add .smarta.website wildcard if needed
+# This allows all subdomains
+ALLOWED_HOSTS.extend(['.smarta.website', 'educore.smarta.website'])
+
+# Remove duplicates and empty strings
+ALLOWED_HOSTS = list(set([host for host in ALLOWED_HOSTS if host]))
+
+print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}")  # For debugging
 
 # Application definition
 INSTALLED_APPS = [
