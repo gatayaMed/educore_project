@@ -24,12 +24,13 @@ services:
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=False
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - ALLOWED_HOSTS=api.educore.smarta.website,educore.smarta.website
       - DB_HOST=postgres
       - DB_NAME=${DB_NAME:-educore}
       - DB_USER=${DB_USER:-educore_user}
       - DB_PASSWORD=${DB_PASSWORD:-educore_password}
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - CORS_ALLOWED_ORIGINS=https://educore.smarta.website
+      - CSRF_TRUSTED_ORIGINS=https://educore.smarta.website
     volumes:
       - media_data:/app/media
       - staticfiles_data:/app/staticfiles
@@ -37,19 +38,15 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8100:8100"  # Fixed indentation
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8100/api/kurse/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - "8100:8100"
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
-    # Coolify/Traefik handles port mapping automatically
+    ports:
+      - "8080:80"
 
 volumes:
   postgres_data:
