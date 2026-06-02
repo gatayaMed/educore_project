@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurse - Educore</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>
+                Educore
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-house me-1"></i> Startseite
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="courses.html">
+                            <i class="bi bi-book me-1"></i> Kurse
+                        </a>
+                    </li>
+                    <li class="nav-item" id="navAuth">
+                        <a class="nav-link btn btn-light text-primary px-3" href="login.html">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Anmelden
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-primary text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold">Unsere Kurse</h1>
+                    <p class="lead">
+                        Entdecken Sie unsere vielfältigen Weiterbildungsmöglichkeiten
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="py-4 bg-light border-bottom">
+        <div class="container">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Kurse suchen...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filterStatus">
+                        <option value="all">Alle Kurse</option>
+                        <option value="available">Verfügbare Plätze</option>
+                        <option value="full">Ausgebucht</option>
+                        <option value="future">Zukünftige Kurse</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <div id="resultsInfo" class="text-muted"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Grid -->
+    <section class="py-5">
+        <div class="container">
+            <div id="coursesContainer" class="row g-4">
+                <!-- Courses will be loaded here -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Laden...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div id="pagination" class="d-flex justify-content-center mt-5">
+                <!-- Pagination will be added here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/courses.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilter = 'all';
+        let currentSearch = '';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
+            loadCourses();
+            
+            document.getElementById('searchInput').addEventListener('input', debounce((e) => {
+                currentSearch = e.target.value;
+                currentPage = 1;
+                loadCourses();
+            }, 500));
+            
+            document.getElementById('filterStatus').addEventListener('change', (e) => {
+                currentFilter = e.target.value;
+                currentPage = 1;
+                loadCourses();
+            });
+        });
+        
+        async function loadCourses() {
+            try {
+                const token = getToken();
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                let url = `${API_BASE_URL}/api/kurse/?page=${currentPage}&page_size=9`;
+                
+                if (currentSearch) {
+                    url += `&search=${encodeURIComponent(currentSearch)}`;
+                }
+                
+                if (currentFilter === 'future') {
+                    url += `&only_future=true`;
+                }
+                
+                const response = await apiRequest(url, 'GET', token);
+                
+                if (response.results) {
+                    displayCourses(response.results);
+                    displayPagination(response);
+                    updateResultsInfo(response);
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showError('Fehler beim Laden der Kurse');
+            }
+        }
+        
+        function displayCourses(courses) {
+            const container = document.getElementById('coursesContainer');
+            
+            if (!courses || courses.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <h3 class="mt-3">Keine Kurse gefunden</h3>
+                        <p class="text-muted">Versuchen Sie einen anderen Suchbegriff</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = courses.map(course => `
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">${escapeHtml(course.titel)}</h5>
+                                ${course.ist_voll ? 
+                                    '<span class="badge bg-danger">Ausgebucht</span>' : 
+                                    '<span class="badge bg-success">Plätze frei</span>'
+                                }
+                            </div>
+                            <p class="card-text text-muted">
+                                ${escapeHtml(course.beschreibung.substring(0, 100))}...
+                            </p>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    Start: ${formatDate(course.start_datum)}
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-people me-1"></i>
+                                    ${course.verfuegbare_plaetze} von ${course.max_teilnehmer} Plätzen verfügbar
+                                </small>
+                            </div>
+                            <div class="progress mb-3" style="height: 5px;">
+                                <div class="progress-bar ${course.ist_voll ? 'bg-danger' : 'bg-success'}" 
+                                     style="width: ${((course.max_teilnehmer - course.verfuegbare_plaetze) / course.max_teilnehmer * 100)}%">
+                                </div>
+                            </div>
+                            <a href="course-detail.html?id=${course.id}" class="btn btn-primary w-100">
+                                <i class="bi bi-info-circle"></i> Details ansehen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function displayPagination(data) {
+            const paginationContainer = document.getElementById('pagination');
+            
+            if (data.total_pages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            let paginationHtml = '<ul class="pagination">';
+            
+            // Previous button
+            paginationHtml += `
+                <li class="page-item ${!data.previous ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+            
+            // Page numbers
+            for (let i = 1; i <= data.total_pages; i++) {
+                if (i === 1 || i === data.total_pages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHtml += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationHtml += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            
+            // Next button
+            paginationHtml += `
+                <li class="page-item ${!data.next ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+            
+            paginationHtml += '</ul>';
+            paginationContainer.innerHTML = paginationHtml;
+        }
+        
+        function updateResultsInfo(data) {
+            const info = document.getElementById('resultsInfo');
+            info.innerHTML = `
+                <i class="bi bi-info-circle"></i>
+                Zeige ${data.results.length} von ${data.count} Kursen
+            `;
+        }
+        
+        function changePage(page) {
+            currentPage = page;
+            loadCourses();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        window.changePage = changePage;
+    </script>
+</body>
+</html>

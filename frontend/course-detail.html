@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kursdetails - Educore</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-mortarboard-fill me-2"></i>
+                Educore
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-house me-1"></i> Startseite
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="courses.html">
+                            <i class="bi bi-book me-1"></i> Kurse
+                        </a>
+                    </li>
+                    <li class="nav-item" id="navAuth">
+                        <a class="nav-link btn btn-light text-primary px-3" href="login.html">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Anmelden
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Content -->
+    <div id="courseContent" class="py-5">
+        <div class="container">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Laden...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment Modal -->
+    <div class="modal fade" id="enrollmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus"></i> Kursanmeldung
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="enrollmentForm">
+                        <input type="hidden" id="courseId">
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Sie melden sich für den Kurs: <strong id="courseTitle"></strong>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="vorname" class="form-label required">Vorname</label>
+                                <input type="text" class="form-control" id="vorname" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="nachname" class="form-label required">Nachname</label>
+                                <input type="text" class="form-control" id="nachname" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label required">E-Mail</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="telefon" class="form-label">Telefon (optional)</label>
+                            <input type="tel" class="form-control" id="telefon">
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Mit der Anmeldung bestätigen Sie unseren <a href="#">AGB</a>.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" onclick="submitEnrollment()">
+                        <i class="bi bi-check-circle"></i> Jetzt anmelden
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle"></i> Anmeldung erfolgreich!
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-emoji-smile fs-1 text-success mb-3"></i>
+                    <h4>Vielen Dank für Ihre Anmeldung!</h4>
+                    <p class="mt-3">
+                        Sie haben sich erfolgreich für den Kurs angemeldet.<br>
+                        Sie erhalten in Kürze eine Bestätigungs-E-Mail.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a href="courses.html" class="btn btn-primary">Zu den Kursen</a>
+                    <a href="index.html" class="btn btn-secondary">Zur Startseite</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/enrollment.js"></script>
+    <script src="js/courses.js"></script>
+    <script>
+        let courseData = null;
+        let enrollmentModal, successModal;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
+            
+            enrollmentModal = new bootstrap.Modal(document.getElementById('enrollmentModal'));
+            successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+            
+            if (courseId) {
+                loadCourseDetails(courseId);
+            } else {
+                window.location.href = 'courses.html';
+            }
+        });
+        
+        async function loadCourseDetails(id) {
+            try {
+                const token = getToken();
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const course = await apiRequest(`${API_BASE_URL}/api/kurse/${id}/`, 'GET', token);
+                courseData = course;
+                displayCourseDetails(course);
+            } catch (error) {
+                console.error('Error loading course:', error);
+                document.getElementById('courseContent').innerHTML = `
+                    <div class="container">
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Fehler beim Laden des Kurses. Bitte versuchen Sie es später erneut.
+                        </div>
+                        <a href="courses.html" class="btn btn-primary">
+                            <i class="bi bi-arrow-left"></i> Zurück zu den Kursen
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayCourseDetails(course) {
+            const container = document.getElementById('courseContent');
+            const capacityPercentage = ((course.max_teilnehmer - course.verfuegbare_plaetze) / course.max_teilnehmer * 100);
+            
+            let progressBarClass = 'bg-success';
+            if (course.ist_voll) progressBarClass = 'bg-danger';
+            else if (capacityPercentage > 80) progressBarClass = 'bg-warning';
+            
+            container.innerHTML = `
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="courses.html">Kurse</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">${escapeHtml(course.titel)}</li>
+                                </ol>
+                            </nav>
+                            
+                            <div class="card shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h1 class="card-title h2 mb-0">${escapeHtml(course.titel)}</h1>
+                                        ${course.ist_voll ? 
+                                            '<span class="badge bg-danger fs-6">Ausgebucht</span>' : 
+                                            '<span class="badge bg-success fs-6">Plätze frei</span>'
+                                        }
+                                    </div>
+                                    
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-calendar3 fs-4 text-primary me-3"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Startdatum</small>
+                                                    <strong>${formatDate(course.start_datum)}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-calendar-check fs-4 text-primary me-3"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Enddatum</small>
+                                                    <strong>${formatDate(course.end_datum)}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h5><i class="bi bi-file-text"></i> Kursbeschreibung</h5>
+                                        <p class="text-muted">${escapeHtml(course.beschreibung)}</p>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h5><i class="bi bi-people"></i> Teilnehmerinformationen</h5>
+                                        <div class="progress mb-2" style="height: 10px;">
+                                            <div class="progress-bar ${progressBarClass}" 
+                                                 style="width: ${capacityPercentage}%">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Verfügbare Plätze: 
+                                                <strong>${course.verfuegbare_plaetze}</strong>
+                                            </span>
+                                            <span>Maximale Teilnehmer: 
+                                                <strong>${course.max_teilnehmer}</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    ${!course.ist_voll ? `
+                                        <div class="d-grid gap-3">
+                                            <button class="btn btn-primary btn-lg" onclick="openEnrollmentModal()">
+                                                <i class="bi bi-pencil-square"></i> Jetzt anmelden
+                                            </button>
+                                        </div>
+                                    ` : `
+                                        <div class="alert alert-danger mb-0">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                            Dieser Kurs ist leider ausgebucht. Bitte wählen Sie einen anderen Kurs.
+                                        </div>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function openEnrollmentModal() {
+            if (!courseData) return;
+            
+            document.getElementById('courseId').value = courseData.id;
+            document.getElementById('courseTitle').innerText = courseData.titel;
+            
+            enrollmentModal.show();
+        }
+        
+        async function submitEnrollment() {
+            const vorname = document.getElementById('vorname').value.trim();
+            const nachname = document.getElementById('nachname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefon = document.getElementById('telefon').value.trim();
+            
+            // Validation
+            if (!vorname || !nachname || !email) {
+                showErrorAlert('Bitte füllen Sie alle Pflichtfelder aus');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showErrorAlert('Bitte geben Sie eine gültige E-Mail-Adresse ein');
+                return;
+            }
+            
+            const enrollmentData = {
+                kurs: courseData.id,
+                vorname: vorname,
+                nachname: nachname,
+                email: email,
+                telefon: telefon
+            };
+            
+            try {
+                const token = getToken();
+                const response = await apiRequest(`${API_BASE_URL}/api/anmeldungen/`, 'POST', token, enrollmentData);
+                
+                if (response) {
+                    enrollmentModal.hide();
+                    successModal.show();
+                    
+                    // Reset form
+                    document.getElementById('enrollmentForm').reset();
+                }
+            } catch (error) {
+                let errorMessage = 'Fehler bei der Anmeldung';
+                if (error.error) {
+                    errorMessage = error.error;
+                } else if (error.details) {
+                    errorMessage = Object.values(error.details).flat().join(', ');
+                }
+                showErrorAlert(errorMessage);
+            }
+        }
+        
+        function showErrorAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="bi bi-exclamation-triangle"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const modalBody = document.querySelector('#enrollmentModal .modal-body');
+            const existingAlert = modalBody.querySelector('.alert-danger');
+            if (existingAlert) existingAlert.remove();
+            
+            modalBody.insertBefore(alertDiv, modalBody.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        window.openEnrollmentModal = openEnrollmentModal;
+        window.submitEnrollment = submitEnrollment;
+    </script>
+</body>
+</html>

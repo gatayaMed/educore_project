@@ -1,0 +1,41 @@
+[
+  {
+    "model": "kurse.kurs",
+    "pk": 1,
+    "fields": {
+      "titel": "Python Grundlagen",
+      "beschreibung": "Einführung in die Programmierung mit Python. Für Anfänger geeignet.",
+      "start_datum": "2026-04-01",
+      "end_datum": "2026-04-30",
+      "max_teilnehmer": 20,
+      "erstellt_am": "2026-04-14T10:00:00Z",
+      "aktualisiert_am": "2026-04-14T10:00:00Z"
+    }
+  },
+  {
+    "model": "kurse.kurs",
+    "pk": 2,
+    "fields": {
+      "titel": "Django für Fortgeschrittene",
+      "beschreibung": "Vertiefung der Django-Kenntnisse mit Fokus auf REST-APIs.",
+      "start_datum": "2026-05-01",
+      "end_datum": "2026-05-15",
+      "max_teilnehmer": 10,
+      "erstellt_am": "2026-04-14T10:00:00Z",
+      "aktualisiert_am": "2026-04-14T10:00:00Z"
+    }
+  },
+  {
+    "model": "kurse.kurs",
+    "pk": 3,
+    "fields": {
+      "titel": "Webentwicklung mit React",
+      "beschreibung": "Moderne Frontend-Entwicklung mit React und TypeScript.",
+      "start_datum": "2026-06-01",
+      "end_datum": "2026-06-30",
+      "max_teilnehmer": 15,
+      "erstellt_am": "2026-04-14T10:00:00Z",
+      "aktualisiert_am": "2026-04-14T10:00:00Z"
+    }
+  }
+]
