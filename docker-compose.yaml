@@ -45,8 +45,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "8080:80"
+   # Remove ports - Traefik handles routing
+    # ports:
+    #   - "8080:80"
+    expose:
+      - "80"
 
 volumes:
   postgres_data:
