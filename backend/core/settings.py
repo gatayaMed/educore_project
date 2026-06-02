@@ -22,7 +22,9 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 # IMPORTANT: For Coolify with Traefik, SECURE_SSL_REDIRECT must be False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# CORS - Allow frontend domain
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+# CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 # Application definition
