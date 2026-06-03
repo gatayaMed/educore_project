@@ -47,7 +47,9 @@ services:
     - "traefik.http.routers.educore-backend.tls.certresolver=letsencrypt"
     - "traefik.http.routers.educore-backend.priority=100"
     - "traefik.http.services.educore-backend.loadbalancer.server.port=8100"
-
+    networks:
+      - default
+      - coolify 
   frontend:
     build:
       context: ./frontend
@@ -70,8 +72,16 @@ services:
     - "traefik.http.routers.educore-frontend-http.entryPoints=http"
     - "traefik.http.routers.educore-frontend-http.middlewares=redirect-to-https"
     - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-
+    networks:
+      - default
+      - coolify 
 volumes:
   postgres_data:
   media_data:
   staticfiles_data:
+
+networks:
+  default:
+    driver: bridge
+  coolify:
+    external: true       # ← This is Traefik's network
