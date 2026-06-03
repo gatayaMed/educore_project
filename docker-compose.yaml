@@ -43,8 +43,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.educore-backend.rule=Host(`educore.smarta.website`) && (PathPrefix(`/api/`) || PathPrefix(`/admin/`) || PathPrefix(`/api-token-auth/`) || PathPrefix(`/swagger/`) || PathPrefix(`/redoc/`))"
-      - "traefik.http.services.educore-backend.loadbalancer.server.port=8100"  
-      - "traefik.http.routers.educore-backend.priority=10" 
+      - "traefik.http.routers.educore-backend.priority=10"
+      - "traefik.http.routers.educore-backend.entryPoints=https"          # ← ADD
+      - "traefik.http.routers.educore-backend.tls=true"                   # ← ADD
+      - "traefik.http.routers.educore-backend.tls.certresolver=letsencrypt" # ← ADD
+      - "traefik.http.services.educore-backend.loadbalancer.server.port=8100"
 
   frontend:
     build:
