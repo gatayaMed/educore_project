@@ -44,6 +44,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.educore-backend.rule=Host(`educore.smarta.website`) && (PathPrefix(`/api/`) || PathPrefix(`/admin/`) || PathPrefix(`/api-token-auth/`) || PathPrefix(`/swagger/`) || PathPrefix(`/redoc/`))"
       - "traefik.http.services.educore-backend.loadbalancer.server.port=8100"  
+      - "traefik.http.routers.educore-backend.priority=10" 
 
   frontend:
     build:
@@ -60,6 +61,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.educore-frontend.rule=Host(`educore.smarta.website`)"
       - "traefik.http.services.educore-frontend.loadbalancer.server.port=80"  
+      - "traefik.http.routers.educore-frontend.priority=1"
 
 volumes:
   postgres_data:
