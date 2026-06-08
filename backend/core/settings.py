@@ -159,3 +159,12 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+# Admin custom CSS
+ADMIN_MEDIA_PREFIX = '/static/admin/'
+
+# Custom admin styling
+class CustomAdminConfig:
+    CSS = {
+        'all': ('admin/css/custom_admin.css',)
+    }

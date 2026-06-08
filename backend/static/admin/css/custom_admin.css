@@ -1,0 +1,42 @@
+/* Custom Admin CSS for Educore */
+#header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.module h2, .module caption {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.dashboard .module table th {
+    background: #f8f9fa;
+}
+
+.object-tools a {
+    background-color: #28a745;
+}
+
+.object-tools a:hover {
+    background-color: #218838;
+}
+
+/* Custom badge styles */
+.badge-success {
+    background-color: #28a745;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: black;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
