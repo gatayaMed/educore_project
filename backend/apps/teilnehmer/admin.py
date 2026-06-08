@@ -4,7 +4,7 @@ Admin configuration for Enrollment model
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from .models import Anmeldung
+from anmeldungen.models import Anmeldung
 
 
 @admin.register(Anmeldung)
