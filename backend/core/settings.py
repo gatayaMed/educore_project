@@ -14,7 +14,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,backend,edu
 
 # Also add .smarta.website wildcard if needed
 # This allows all subdomains
-ALLOWED_HOSTS.extend(['.smarta.website', 'educore.smarta.website'])
+ALLOWED_HOSTS.extend(['*.smarta.website', 'educore.smarta.website'])
 
 # Remove duplicates and empty strings
 ALLOWED_HOSTS = list(set([host for host in ALLOWED_HOSTS if host]))
